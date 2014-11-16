@@ -52,6 +52,14 @@ static void NmiSR(void);
 static void FaultISR(void);
 static void IntDefaultHandler(void);
 
+#define USE_FREERTOS
+
+#ifdef USE_FREERTOS 
+extern void vPortSVCHandler(void);
+extern void xPortPendSVHandler(void);
+extern void xPortSysTickHandler(void);
+#endif 
+
 //*****************************************************************************
 //
 // The entry point for the application.
@@ -122,11 +130,20 @@ void (* const g_pfnVectors[])(void) =
     0,                                      // Reserved
     0,                                      // Reserved
     0,                                      // Reserved
+#ifdef USE_FREERTOS
+    vPortSVCHandler,                        // SVCall handler
+#else
     IntDefaultHandler,                      // SVCall handler
+#endif
     IntDefaultHandler,                      // Debug monitor handler
     0,                                      // Reserved
+#ifdef USE_FREERTOS
+    xPortPendSVHandler,                     // The PendSV handler
+    xPortSysTickHandler,                    // The SysTick handler
+#else
     IntDefaultHandler,                      // The PendSV handler
     SysTickIntHandler,                      // The SysTick handler
+#endif
     GPIOAIntHandler,                        // GPIO Port A
     GPIOBIntHandler,                        // GPIO Port B
     GPIOCIntHandler,                        // GPIO Port C
@@ -282,11 +299,20 @@ void (* const g_pfnVectors[])(void) =
     0,                                      // Reserved
     0,                                      // Reserved
     0,                                      // Reserved
+#ifdef USE_FREERTOS
+    vPortSVCHandler,                        // SVCall handler
+#else
     IntDefaultHandler,                      // SVCall handler
+#endif
     IntDefaultHandler,                      // Debug monitor handler
     0,                                      // Reserved
+#ifdef USE_FREERTOS
+    xPortPendSVHandler,                     // The PendSV handler
+    xPortSysTickHandler,                    // The SysTick handler
+#else
     IntDefaultHandler,                      // The PendSV handler
     SysTickIntHandler,                      // The SysTick handler
+#endif
     GPIOAIntHandler,                        // GPIO Port A
     GPIOBIntHandler,                        // GPIO Port B
     GPIOCIntHandler,                        // GPIO Port C

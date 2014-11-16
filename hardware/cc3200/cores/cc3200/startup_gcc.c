@@ -88,9 +88,14 @@ extern void SysTickIntHandler(void);
 ////
 ////*****************************************************************************
 //extern void _c_int00(void);
-//extern void vPortSVCHandler(void);
-//extern void xPortPendSVHandler(void);
-//extern void xPortSysTickHandler(void);
+
+#define USE_FREERTOS
+
+#ifdef USE_FREERTOS 
+extern void vPortSVCHandler(void);
+extern void xPortPendSVHandler(void);
+extern void xPortSysTickHandler(void);
+#endif 
 
 //*****************************************************************************
 //
@@ -118,6 +123,7 @@ __attribute__((weak)) void Timer5IntHandler(void) {}
 //*****************************************************************************
 static uint32_t pui32Stack[8192];
 
+
 //*****************************************************************************
 //
 // The vector table.  Note that the proper constructs must be placed on this to
@@ -139,11 +145,20 @@ void (* const g_pfnVectors[256])(void) =
     0,                                      // Reserved
     0,                                      // Reserved
     0,                                      // Reserved
+#ifdef USE_FREERTOS
+    vPortSVCHandler,                        // SVCall handler
+#else
     IntDefaultHandler,                      // SVCall handler
+#endif
     IntDefaultHandler,                      // Debug monitor handler
     0,                                      // Reserved
+#ifdef USE_FREERTOS
+    xPortPendSVHandler,                     // The PendSV handler
+    xPortSysTickHandler,                    // The SysTick handler
+#else
     IntDefaultHandler,                      // The PendSV handler
-    SysTickIntHandler,                      // The SysTick handler
+    IntDefaultHandler,                      // The SysTick handler
+#endif
     IntDefaultHandler,                      // GPIO Port A
     IntDefaultHandler,                      // GPIO Port B
     IntDefaultHandler,                      // GPIO Port C

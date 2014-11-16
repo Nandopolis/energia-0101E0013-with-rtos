@@ -1,0 +1,26 @@
+
+CFLAGS
+ -O0 -Wall -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections -mthumb -mcpu=cortex-m4 -DF_CPU=80000000L -MMD -DARDUINO=101 -DENERGIA=13 -g -gdwarf-2
+ 
+LDFLAGS
+
+ -O0 -nostartfiles -nostdlib -Wl,--gc-sections -T ../cores/cc3200/cc3200.ld -Wl,--entry=ResetISR -mthumb -mcpu=cortex-m4  
+ 
+ Libraries
+  -lm -lc -lgcc
+
+Includes  
+"${workspace_loc:/${ProjName}/cores/cc3200}"
+"${workspace_loc:/${ProjName}/libraries/AIR430BoostEuropeETSI}"
+"${workspace_loc:/${ProjName}/libraries/AIR430BoostUSAFCC}"
+"${workspace_loc:/${ProjName}/libraries/BMA222}"
+"${workspace_loc:/${ProjName}/libraries/SPI}"
+"${workspace_loc:/${ProjName}/libraries/WiFi}"
+"${workspace_loc:/${ProjName}/libraries/Wire}"
+"${workspace_loc:/${ProjName}/libraries/Temboo}"
+"${workspace_loc:/${ProjName}/variants/launchpad}"
+"${workspace_loc:/${ProjName}/cores/cc3200/driverlib}"
+"${workspace_loc:/${ProjName}/cores/cc3200/freertos}"
+"${workspace_loc:/${ProjName}/cores/cc3200/inc}"
+
+

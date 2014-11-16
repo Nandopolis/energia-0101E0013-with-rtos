@@ -1,0 +1,30 @@
+
+CFLAGS
+-O0 -Wall -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant -DF_CPU=80000000L -MMD -DARDUINO=101 -DENERGIA=13 -g -gdwarf-2 
+
+LDFLAGS
+-O0 -nostartfiles -nostdlib -Wl,--gc-sections -T ../cores/lm4f/lm4fcpp_blizzard.ld -Wl,--entry=ResetISR -mthumb -mcpu=cortex-m4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 -fsingle-precision-constant
+
+ Libraries
+  -lm -lc -lgcc
+
+
+Includes  
+"${workspace_loc:/${ProjName}/cores/lm4f}"
+"${workspace_loc:/${ProjName}/cores/lm4f/driverlib}"
+"${workspace_loc:/${ProjName}/cores/lm4f/freertos}"
+"${workspace_loc:/${ProjName}/cores/lm4f/inc}"
+"${workspace_loc:/${ProjName}/libraries/AIR430BoostEuropeETSI}"
+"${workspace_loc:/${ProjName}/libraries/AIR430BoostUSAFCC}"
+"${workspace_loc:/${ProjName}/libraries/EduBPMKII_Screen}"
+"${workspace_loc:/${ProjName}/libraries/EEPROM}"
+"${workspace_loc:/${ProjName}/libraries/Ethernet}"
+"${workspace_loc:/${ProjName}/libraries/FreeRTOS}"
+"${workspace_loc:/${ProjName}/libraries/Servo}"
+"${workspace_loc:/${ProjName}/libraries/SPI}"
+"${workspace_loc:/${ProjName}/libraries/Stepper}"
+"${workspace_loc:/${ProjName}/libraries/Temboo}"
+"${workspace_loc:/${ProjName}/libraries/TMP006}"
+"${workspace_loc:/${ProjName}/libraries/WiFi}"
+"${workspace_loc:/${ProjName}/libraries/Wire}"
+"${workspace_loc:/${ProjName}/variants/stellarpad}"

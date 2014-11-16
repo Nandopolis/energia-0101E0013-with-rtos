@@ -51,7 +51,7 @@ extern "C" {
   
 #define OSI_FAILURE      			-1
   
-#define OSI_DEFAULT_STACK_SIZE 4096 
+#define OSI_DEFAULT_STACK_SIZE 1024 
   
 typedef enum
 {

@@ -72,81 +72,100 @@
     mission critical applications that require provable dependability.
 */
 
-#ifndef FREERTOS_CONFIG_H
-#define FREERTOS_CONFIG_H
+#include <FreeRTOSConfig.h>
 
-/*-----------------------------------------------------------
- * Application specific definitions.
- *
- * These definitions should be adjusted for your particular hardware and
- * application requirements.
- *
- * THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
- * FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE.
- *
- * See http://www.freertos.org/a00110.html.
- *----------------------------------------------------------*/
+	RSEG    CODE:CODE(2)
+	thumb
 
-#define configUSE_PREEMPTION			1
-#define configUSE_IDLE_HOOK	                1
-#define configUSE_TICK_HOOK				0 // 1
-#define configCPU_CLOCK_HZ				( ( unsigned long ) 80000000 )
-#define configTICK_RATE_HZ				( ( portTickType ) 1000 )
-#define configMINIMAL_STACK_SIZE		( ( unsigned short ) 70 )
-#define configTOTAL_HEAP_SIZE			( ( size_t ) ( 60*1024 ) )
-#define configMAX_TASK_NAME_LEN			( 12 )
-#define configUSE_TRACE_FACILITY		1
-#define configUSE_16_BIT_TICKS			0
-#define configIDLE_SHOULD_YIELD			0
-#define configUSE_CO_ROUTINES 			0
-#define configUSE_MUTEXES				1
-#define configUSE_RECURSIVE_MUTEXES		0
-#define configCHECK_FOR_STACK_OVERFLOW	1
-#define configUSE_QUEUE_SETS			1
-#define configUSE_COUNTING_SEMAPHORES	1
-#define configUSE_ALTERNATIVE_API		1
+	EXTERN pxCurrentTCB
+	EXTERN vTaskSwitchContext
 
-#define configMAX_PRIORITIES			( 10UL )
-#define configMAX_CO_ROUTINE_PRIORITIES ( 2 )
-#define configQUEUE_REGISTRY_SIZE		10
+	PUBLIC xPortPendSVHandler
+	PUBLIC ulPortSetInterruptMask
+	PUBLIC vPortClearInterruptMask
+	PUBLIC vPortSVCHandler
+	PUBLIC vPortStartFirstTask
 
-/* Timer related defines. */
-#define configUSE_TIMERS				0
-#define configTIMER_TASK_PRIORITY		2
-#define configTIMER_QUEUE_LENGTH		20
-#define configTIMER_TASK_STACK_DEPTH	( configMINIMAL_STACK_SIZE * 2 )
-#define configUSE_MALLOC_FAILED_HOOK    1
 
-/* Set the following definitions to 1 to include the API function, or zero
-to exclude the API function. */
 
-#define INCLUDE_vTaskPrioritySet				1
-#define INCLUDE_uxTaskPriorityGet				1
-#define INCLUDE_vTaskDelete						1
-#define INCLUDE_vTaskCleanUpResources			1
-#define INCLUDE_vTaskSuspend					1
-#define INCLUDE_vTaskDelayUntil					1
-#define INCLUDE_vTaskDelay						1
-#define INCLUDE_uxTaskGetStackHighWaterMark		0
-#define INCLUDE_xTaskGetSchedulerState			1
-#define INCLUDE_xTimerGetTimerDaemonTaskHandle	0
-#define INCLUDE_xTaskGetIdleTaskHandle			1
-#define INCLUDE_pcTaskGetTaskName				1
-#define INCLUDE_eTaskGetState					1
-#define INCLUDE_xSemaphoreGetMutexHolder		0
+/*-----------------------------------------------------------*/
 
-#define configKERNEL_INTERRUPT_PRIORITY 		( 7 << 5 )	/* Priority 7, or 255 as only the top three bits are implemented.  This is the lowest priority. */
-/* !!!! configMAX_SYSCALL_INTERRUPT_PRIORITY must not be set to zero !!!!
-See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
-#define configMAX_SYSCALL_INTERRUPT_PRIORITY 	( 1 << 5 )  /* Priority 5, or 160 as only the top three bits are implemented. */
+xPortPendSVHandler:
+	mrs r0, psp						
+	ldr	r3, =pxCurrentTCB			/* Get the location of the current TCB. */
+	ldr	r2, [r3]						
 
-/* Use the Cortex-M3 optimised task selection rather than the generic C code
-version. */
-#define configUSE_PORT_OPTIMISED_TASK_SELECTION 1
+	stmdb r0!, {r4-r11}				/* Save the remaining registers. */
+	str r0, [r2]					/* Save the new top of stack into the first member of the TCB. */
 
-#ifdef __ICCARM__
-	void vAssertCalled( const char *pcFile, unsigned long ulLine );
-	#define configASSERT( x ) if( x == 0 ) vAssertCalled( __FILE__, __LINE__ );
-#endif
+	stmdb sp!, {r3, r14}
+	mov r0, #configMAX_SYSCALL_INTERRUPT_PRIORITY
+	msr basepri, r0
+	dsb
+	isb
+	bl vTaskSwitchContext			
+	mov r0, #0
+	msr basepri, r0
+	dsb
+	isb
+	ldmia sp!, {r3, r14}
 
-#endif /* FREERTOS_CONFIG_H */
+	ldr r1, [r3]					
+	ldr r0, [r1]					/* The first item in pxCurrentTCB is the task top of stack. */
+	ldmia r0!, {r4-r11}				/* Pop the registers. */
+	msr psp, r0						
+	bx r14							
+
+
+/*-----------------------------------------------------------*/
+
+ulPortSetInterruptMask:
+	mrs r0, basepri
+	mov r1, #configMAX_SYSCALL_INTERRUPT_PRIORITY
+	msr basepri, r1
+	dsb
+	isb
+	bx r14
+	
+/*-----------------------------------------------------------*/
+
+vPortClearInterruptMask:
+	msr basepri, r0
+	dsb
+	isb
+	bx r14
+
+/*-----------------------------------------------------------*/
+
+vPortSVCHandler:
+	/* Get the location of the current TCB. */
+	ldr	r3, =pxCurrentTCB
+	ldr r1, [r3]
+	ldr r0, [r1]
+	/* Pop the core registers. */
+	ldmia r0!, {r4-r11}
+	msr psp, r0
+	mov r0, #0
+	msr	basepri, r0
+	dsb
+	isb
+	orr r14, r14, #13
+	bx r14
+
+/*-----------------------------------------------------------*/
+
+vPortStartFirstTask
+	/* Use the NVIC offset register to locate the stack. */
+	ldr r0, =0xE000ED08
+	ldr r0, [r0]
+	ldr r0, [r0]
+	/* Set the msp back to the start of the stack. */
+	msr msp, r0
+	/* Call SVC to start the first task. */
+	cpsie i
+	dsb
+	isb
+	svc 0
+
+	END
+	

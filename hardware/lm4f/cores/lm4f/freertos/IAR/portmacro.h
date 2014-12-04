@@ -72,81 +72,114 @@
     mission critical applications that require provable dependability.
 */
 
-#ifndef FREERTOS_CONFIG_H
-#define FREERTOS_CONFIG_H
 
-/*-----------------------------------------------------------
- * Application specific definitions.
- *
- * These definitions should be adjusted for your particular hardware and
- * application requirements.
- *
- * THESE PARAMETERS ARE DESCRIBED WITHIN THE 'CONFIGURATION' SECTION OF THE
- * FreeRTOS API DOCUMENTATION AVAILABLE ON THE FreeRTOS.org WEB SITE.
- *
- * See http://www.freertos.org/a00110.html.
- *----------------------------------------------------------*/
+#ifndef PORTMACRO_H
+#define PORTMACRO_H
 
-#define configUSE_PREEMPTION			1
-#define configUSE_IDLE_HOOK	                1
-#define configUSE_TICK_HOOK				0 // 1
-#define configCPU_CLOCK_HZ				( ( unsigned long ) 80000000 )
-#define configTICK_RATE_HZ				( ( portTickType ) 1000 )
-#define configMINIMAL_STACK_SIZE		( ( unsigned short ) 70 )
-#define configTOTAL_HEAP_SIZE			( ( size_t ) ( 60*1024 ) )
-#define configMAX_TASK_NAME_LEN			( 12 )
-#define configUSE_TRACE_FACILITY		1
-#define configUSE_16_BIT_TICKS			0
-#define configIDLE_SHOULD_YIELD			0
-#define configUSE_CO_ROUTINES 			0
-#define configUSE_MUTEXES				1
-#define configUSE_RECURSIVE_MUTEXES		0
-#define configCHECK_FOR_STACK_OVERFLOW	1
-#define configUSE_QUEUE_SETS			1
-#define configUSE_COUNTING_SEMAPHORES	1
-#define configUSE_ALTERNATIVE_API		1
-
-#define configMAX_PRIORITIES			( 10UL )
-#define configMAX_CO_ROUTINE_PRIORITIES ( 2 )
-#define configQUEUE_REGISTRY_SIZE		10
-
-/* Timer related defines. */
-#define configUSE_TIMERS				0
-#define configTIMER_TASK_PRIORITY		2
-#define configTIMER_QUEUE_LENGTH		20
-#define configTIMER_TASK_STACK_DEPTH	( configMINIMAL_STACK_SIZE * 2 )
-#define configUSE_MALLOC_FAILED_HOOK    1
-
-/* Set the following definitions to 1 to include the API function, or zero
-to exclude the API function. */
-
-#define INCLUDE_vTaskPrioritySet				1
-#define INCLUDE_uxTaskPriorityGet				1
-#define INCLUDE_vTaskDelete						1
-#define INCLUDE_vTaskCleanUpResources			1
-#define INCLUDE_vTaskSuspend					1
-#define INCLUDE_vTaskDelayUntil					1
-#define INCLUDE_vTaskDelay						1
-#define INCLUDE_uxTaskGetStackHighWaterMark		0
-#define INCLUDE_xTaskGetSchedulerState			1
-#define INCLUDE_xTimerGetTimerDaemonTaskHandle	0
-#define INCLUDE_xTaskGetIdleTaskHandle			1
-#define INCLUDE_pcTaskGetTaskName				1
-#define INCLUDE_eTaskGetState					1
-#define INCLUDE_xSemaphoreGetMutexHolder		0
-
-#define configKERNEL_INTERRUPT_PRIORITY 		( 7 << 5 )	/* Priority 7, or 255 as only the top three bits are implemented.  This is the lowest priority. */
-/* !!!! configMAX_SYSCALL_INTERRUPT_PRIORITY must not be set to zero !!!!
-See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
-#define configMAX_SYSCALL_INTERRUPT_PRIORITY 	( 1 << 5 )  /* Priority 5, or 160 as only the top three bits are implemented. */
-
-/* Use the Cortex-M3 optimised task selection rather than the generic C code
-version. */
-#define configUSE_PORT_OPTIMISED_TASK_SELECTION 1
-
-#ifdef __ICCARM__
-	void vAssertCalled( const char *pcFile, unsigned long ulLine );
-	#define configASSERT( x ) if( x == 0 ) vAssertCalled( __FILE__, __LINE__ );
+#ifdef __cplusplus
+extern "C" {
 #endif
 
-#endif /* FREERTOS_CONFIG_H */
+/*-----------------------------------------------------------
+ * Port specific definitions.
+ *
+ * The settings in this file configure FreeRTOS correctly for the
+ * given hardware and compiler.
+ *
+ * These settings should not be altered.
+ *-----------------------------------------------------------
+ */
+
+/* Type definitions. */
+#define portCHAR		char
+#define portFLOAT		float
+#define portDOUBLE		double
+#define portLONG		long
+#define portSHORT		short
+#define portSTACK_TYPE	unsigned portLONG
+#define portBASE_TYPE	long
+
+#if( configUSE_16_BIT_TICKS == 1 )
+	typedef unsigned portSHORT portTickType;
+	#define portMAX_DELAY ( portTickType ) 0xffff
+#else
+	typedef unsigned portLONG portTickType;
+	#define portMAX_DELAY ( portTickType ) 0xffffffff
+#endif
+/*-----------------------------------------------------------*/	
+
+/* Architecture specifics. */
+#define portSTACK_GROWTH			( -1 )
+#define portTICK_RATE_MS			( ( portTickType ) 1000 / configTICK_RATE_HZ )		
+#define portBYTE_ALIGNMENT			8
+/*-----------------------------------------------------------*/	
+
+/* Scheduler utilities. */
+extern void vPortYieldFromISR( void );
+#define portYIELD()					vPortYieldFromISR()
+#define portEND_SWITCHING_ISR( xSwitchRequired ) if( xSwitchRequired ) vPortYieldFromISR()
+/*-----------------------------------------------------------*/
+
+/* Architecture specific optimisations. */
+#if configUSE_PORT_OPTIMISED_TASK_SELECTION == 1
+
+	/* Check the configuration. */
+	#if( configMAX_PRIORITIES > 32 )
+		#error configUSE_PORT_OPTIMISED_TASK_SELECTION can only be set to 1 when configMAX_PRIORITIES is less than or equal to 32.  It is very rare that a system requires more than 10 to 15 difference priorities as tasks that share a priority will time slice.
+	#endif
+
+	/* Store/clear the ready priorities in a bit map. */
+	#define portRECORD_READY_PRIORITY( uxPriority, uxReadyPriorities ) ( uxReadyPriorities ) |= ( 1UL << ( uxPriority ) )
+	#define portRESET_READY_PRIORITY( uxPriority, uxReadyPriorities ) ( uxReadyPriorities ) &= ~( 1UL << ( uxPriority ) )
+
+	/*-----------------------------------------------------------*/
+
+	#include <intrinsics.h>
+	#define portGET_HIGHEST_PRIORITY( uxTopPriority, uxReadyPriorities ) uxTopPriority = ( 31 - __CLZ( ( uxReadyPriorities ) ) )
+
+#endif /* configUSE_PORT_OPTIMISED_TASK_SELECTION */
+/*-----------------------------------------------------------*/
+
+/* Critical section management. */
+extern void vPortEnterCritical( void );
+extern void vPortExitCritical( void );
+extern unsigned long ulPortSetInterruptMask( void );
+extern void vPortClearInterruptMask( unsigned long ulNewMask );
+
+#define portDISABLE_INTERRUPTS()				ulPortSetInterruptMask()
+#define portENABLE_INTERRUPTS()					vPortClearInterruptMask( 0 )
+#define portENTER_CRITICAL()					vPortEnterCritical()
+#define portEXIT_CRITICAL()						vPortExitCritical()
+#define portSET_INTERRUPT_MASK_FROM_ISR()		ulPortSetInterruptMask()
+#define portCLEAR_INTERRUPT_MASK_FROM_ISR(x)	vPortClearInterruptMask( x )
+/*-----------------------------------------------------------*/
+
+/* Tickless idle/low power functionality. */
+#ifndef portSUPPRESS_TICKS_AND_SLEEP
+	extern void vPortSuppressTicksAndSleep( portTickType xExpectedIdleTime );
+	#define portSUPPRESS_TICKS_AND_SLEEP( xExpectedIdleTime ) vPortSuppressTicksAndSleep( xExpectedIdleTime )
+#endif
+/*-----------------------------------------------------------*/
+
+/* Task function macros as described on the FreeRTOS.org WEB site.  These are
+not necessary for to use this port.  They are defined so the common demo files
+(which build with all the ports) will build. */
+#define portTASK_FUNCTION_PROTO( vFunction, pvParameters ) void vFunction( void *pvParameters )
+#define portTASK_FUNCTION( vFunction, pvParameters ) void vFunction( void *pvParameters )
+/*-----------------------------------------------------------*/
+
+/* portNOP() is not required by this port. */
+#define portNOP()
+
+/* Suppress warnings that are generated by the IAR tools, but cannot be fixed in
+the source code because to do so would cause other compilers to generate
+warnings. */
+#pragma diag_suppress=Pe191
+#pragma diag_suppress=Pa082
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* PORTMACRO_H */
+

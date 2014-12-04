@@ -33,6 +33,8 @@
   Modified 28 September 2010 by Mark Sproul
  */
 
+#include "freertos/FreeRTOS.h"
+   
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -274,8 +276,8 @@ HardwareSerial::begin(unsigned long baud)
         free(txBuffer);
     if (rxBuffer != (unsigned char *)0xFFFFFFFF)  // Catch attempts to re-init this Serial instance by freeing old buffer first
         free(rxBuffer);
-    txBuffer = (unsigned char *) malloc(txBufferSize);
-    rxBuffer = (unsigned char *) malloc(rxBufferSize);
+    txBuffer = (unsigned char *) pvPortMalloc(txBufferSize);
+    rxBuffer = (unsigned char *) pvPortMalloc(rxBufferSize);
 
     SysCtlDelay(100);
 }
@@ -386,6 +388,9 @@ void HardwareSerial::flush()
     while(!TX_BUFFER_EMPTY);
 }
 
+
+
+
 size_t HardwareSerial::write(uint8_t c)
 {
 
@@ -477,9 +482,8 @@ void HardwareSerial::UARTIntHandler(void){
             uint8_t volatile full = RX_BUFFER_FULL;
             if(full) break;
 
-            rxBuffer[rxWriteIndex] =
-                (unsigned char)(lChar & 0xFF);
-            rxWriteIndex = ((rxWriteIndex) + 1) % rxBufferSize;
+            rxBuffer[rxWriteIndex] = (unsigned char)(lChar & 0xFF);
+            rxWriteIndex           = ((rxWriteIndex) + 1) % rxBufferSize;
 
             //
             // If we wrote anything to the transmit buffer, make sure it actually
@@ -539,21 +543,27 @@ UARTIntHandler7(void)
     Serial7.UARTIntHandler();
 }
 
+#ifndef __IAR_SYSTEMS_ICC__
+
 void serialEvent() __attribute__((weak));
-void serialEvent() {}
 void serialEvent1() __attribute__((weak));
-void serialEvent1() {}
 void serialEvent2() __attribute__((weak));
-void serialEvent2() {}
 void serialEvent3() __attribute__((weak));
-void serialEvent3() {}
 void serialEvent4() __attribute__((weak));
-void serialEvent4() {}
 void serialEvent5() __attribute__((weak));
-void serialEvent5() {}
 void serialEvent6() __attribute__((weak));
-void serialEvent6() {}
 void serialEvent7() __attribute__((weak));
+
+#endif
+
+
+void serialEvent() {}
+void serialEvent1() {}
+void serialEvent2() {}
+void serialEvent3() {}
+void serialEvent4() {}
+void serialEvent5() {}
+void serialEvent6() {}
 void serialEvent7() {}
 
 void serialEventRun(void)

@@ -8,6 +8,8 @@
  * published by the Free Software Foundation.
  */
 
+#include <stdint.h>
+
 #include "wiring_private.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_ssi.h"
@@ -171,7 +173,7 @@ SPIClass::SPIClass(uint8_t module) {
 }
   
 void SPIClass::begin() {
-	unsigned long initialData = 0;
+	unsigned int initialData = 0;
 
     if(SSIModule == NOT_ACTIVE) {
         SSIModule = BOOST_PACK_SPI;
@@ -247,7 +249,7 @@ void SPIClass::setClockDivider(uint8_t divider){
 }
 
 uint8_t SPIClass::transfer(uint8_t data) {
-	unsigned long rxtxData;
+	unsigned int rxtxData;
 
 	rxtxData = data;
 	if(SSIBitOrder == LSBFIRST) {

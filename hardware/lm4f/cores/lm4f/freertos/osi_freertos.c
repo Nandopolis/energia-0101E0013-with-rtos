@@ -43,7 +43,13 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
-#include "portmacro.h"
+
+#ifdef __GNUC__
+#include "GCC/portmacro.h"
+#else
+#include "IAR/portmacro.h"
+#endif
+
 #include "osi.h"
 
 portBASE_TYPE xHigherPriorityTaskWoken = pdFALSE;

@@ -93,7 +93,7 @@
 #define configCPU_CLOCK_HZ				( ( unsigned long ) 80000000 )
 #define configTICK_RATE_HZ				( ( portTickType ) 1000 )
 #define configMINIMAL_STACK_SIZE		( ( unsigned short ) 70 )
-#define configTOTAL_HEAP_SIZE			( ( size_t ) ( 5000) )
+#define configTOTAL_HEAP_SIZE			( ( size_t ) ( 10000) )
 #define configMAX_TASK_NAME_LEN			( 12 )
 #define configUSE_TRACE_FACILITY		1
 #define configUSE_16_BIT_TICKS			0
@@ -135,18 +135,21 @@ to exclude the API function. */
 #define INCLUDE_eTaskGetState					1
 #define INCLUDE_xSemaphoreGetMutexHolder		0
 
-#define configKERNEL_INTERRUPT_PRIORITY 		( 7 << 5 )	/* Priority 7, or 255 as only the top three bits are implemented.  This is the lowest priority. */
-/* !!!! configMAX_SYSCALL_INTERRUPT_PRIORITY must not be set to zero !!!!
-See http://www.FreeRTOS.org/RTOS-Cortex-M3-M4.html. */
-#define configMAX_SYSCALL_INTERRUPT_PRIORITY 	( 1 << 5 )  /* Priority 5, or 160 as only the top three bits are implemented. */
+/* Be ENORMOUSLY careful if you want to modify these two values and make sure
+ * you read http://www.freertos.org/a00110.html#kernel_priority first!
+ */
+#define configKERNEL_INTERRUPT_PRIORITY         ( 7 << 5 )    /* Priority 7, or 0xE0 as only the top three bits are implemented.  This is the lowest priority. */
+#define configMAX_SYSCALL_INTERRUPT_PRIORITY     ( 5 << 5 )  /* Priority 5, or 0xA0 as only the top three bits are implemented. */
+
 
 /* Use the Cortex-M3 optimised task selection rather than the generic C code
 version. */
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION 1
 
 #ifdef __ICCARM__
-	void vAssertCalled( const char *pcFile, unsigned long ulLine );
-	#define configASSERT( x ) if( x == 0 ) vAssertCalled( __FILE__, __LINE__ );
+	//void vAssertCalled( const char *pcFile, unsigned long ulLine );
+	#define configASSERT( x ) 
+           //if( x == 0 ) vAssertCalled( __FILE__, __LINE__ );
 #endif
 
 #endif /* FREERTOS_CONFIG_H */

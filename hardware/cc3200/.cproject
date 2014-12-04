@@ -16,7 +16,7 @@
 					<folderInfo id="cdt.managedbuild.config.gnu.cross.exe.debug.1122863919." name="/" resourcePath="">
 						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.exe.debug.151799005" name="Cross GCC" nonInternalBuilderId="cdt.managedbuild.builder.gnu.cross" superClass="cdt.managedbuild.toolchain.gnu.cross.exe.debug">
 							<option id="cdt.managedbuild.option.gnu.cross.prefix.1514442006" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix" value="arm-none-eabi-" valueType="string"/>
-							<option id="cdt.managedbuild.option.gnu.cross.path.2089445175" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path" value="C:\ferramentas\energia-0101E0013\hardware\tools\lm4f\bin" valueType="string"/>
+							<option id="cdt.managedbuild.option.gnu.cross.path.2089445175" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path" value="C:\projetos-no-git\energia-0101E0013\hardware\tools\lm4f\bin" valueType="string"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.targetPlatform.gnu.cross.898239342" isAbstract="false" osList="all" superClass="cdt.managedbuild.targetPlatform.gnu.cross"/>
 							<builder autoBuildTarget="all" buildPath="${workspace_loc:/energia-cc3200-rtos}/Debug" cleanBuildTarget="clean" id="org.eclipse.cdt.build.core.internal.builder.844707883" incrementalBuildTarget="all" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="CDT Internal Builder" superClass="org.eclipse.cdt.build.core.internal.builder"/>
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.compiler.411367832" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler">
@@ -36,7 +36,8 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cores/cc3200/freertos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cores/cc3200/inc}&quot;"/>
 								</option>
-								<option id="gnu.c.compiler.option.misc.other.1708679986" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0  -O0 -Wall -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections -mthumb -mcpu=cortex-m4 -DF_CPU=80000000L -MMD -DARDUINO=101 -DENERGIA=13 -g -gdwarf-2" valueType="string"/>
+								<option id="gnu.c.compiler.option.misc.other.1708679986" name="Other flags" superClass="gnu.c.compiler.option.misc.other" useByScannerDiscovery="false" value="-c -fmessage-length=0    -fstack-usage  -Os -fno-exceptions -ffunction-sections -fdata-sections -mthumb -mcpu=cortex-m4 -DF_CPU=80000000L -MMD -DARDUINO=101 -DENERGIA=13 -g -gdwarf-2" valueType="string"/>
+								<option id="gnu.c.compiler.option.dialect.std.1140131190" name="Language standard" superClass="gnu.c.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.c.compiler.dialect.default" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1707061579" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.608350647" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler">
@@ -56,13 +57,14 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cores/cc3200/freertos}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/cores/cc3200/inc}&quot;"/>
 								</option>
-								<option id="gnu.cpp.compiler.option.other.other.516063897" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0  -O0 -Wall -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections -mthumb -mcpu=cortex-m4 -DF_CPU=80000000L -MMD -DARDUINO=101 -DENERGIA=13 -g -gdwarf-2" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.other.other.516063897" name="Other flags" superClass="gnu.cpp.compiler.option.other.other" useByScannerDiscovery="false" value="-c -fmessage-length=0    -fstack-usage -Os -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections -mthumb -mcpu=cortex-m4 -DF_CPU=80000000L -MMD -DARDUINO=101 -DENERGIA=13 -g -gdwarf-2" valueType="string"/>
+								<option id="gnu.cpp.compiler.option.dialect.std.383098783" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.default" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.180038540" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
 							</tool>
 							<tool id="cdt.managedbuild.tool.gnu.cross.c.linker.1193625840" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker"/>
 							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.linker.611619774" name="Cross G++ Linker" superClass="cdt.managedbuild.tool.gnu.cross.cpp.linker">
 								<option id="gnu.cpp.link.option.flags.185529343" name="Linker flags" superClass="gnu.cpp.link.option.flags" value=" -O0 -nostartfiles -nostdlib  -Wl,--gc-sections -T ../cores/cc3200/cc3200.ld -Wl,--entry=ResetISR -mthumb -mcpu=cortex-m4 " valueType="string"/>
-								<option id="gnu.cpp.link.option.libs.960197889" superClass="gnu.cpp.link.option.libs" valueType="libs">
+								<option id="gnu.cpp.link.option.libs.960197889" name="Libraries (-l)" superClass="gnu.cpp.link.option.libs" valueType="libs">
 									<listOptionValue builtIn="false" value="m"/>
 									<listOptionValue builtIn="false" value="c"/>
 									<listOptionValue builtIn="false" value="gcc"/>
@@ -163,4 +165,5 @@
 			<resource resourceType="PROJECT" workspacePath="/energia-cc3200-rtos"/>
 		</configuration>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

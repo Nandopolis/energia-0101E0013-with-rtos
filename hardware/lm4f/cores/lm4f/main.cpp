@@ -65,9 +65,17 @@ void _init(void)
 #include "freertos/osi.h"
 
 void vTaskDefault( void *pvParameters ){
+      // do legacy setup function and create new task if needed
+	setup();
+
 	for (;;) {
-      loop();
-	  if (serialEventRun) serialEventRun();
+          loop();
+	  
+#ifndef __IAR_SYSTEMS_ICC__
+          if (serialEventRun) 
+#endif            
+          serialEventRun();
+          
 	}
 }
 
@@ -79,11 +87,9 @@ void vTaskDefault( void *pvParameters ){
 
 int main(void)
 {
-    // do legacy setup function and create new task if needed
-	setup();
 
 	// create a task to run legacy loop function 
-    osi_TaskCreate( vTaskDefault, ( signed portCHAR * ) "Default", OSI_DEFAULT_STACK_SIZE, NULL, 1, NULL );
+    osi_TaskCreate( vTaskDefault, ( signed portCHAR * ) "LM4F", OSI_DEFAULT_STACK_SIZE, NULL, 1, NULL );
 	
 	//RTOS start
 	osi_start();

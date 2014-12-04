@@ -94,5 +94,5 @@ extern "C" void UARTIntHandler5(void);
 extern "C" void UARTIntHandler6(void);
 extern "C" void UARTIntHandler7(void);
 
-extern void serialEventRun(void) __attribute__((weak));
+extern void serialEventRun(void); //__attribute__((weak));
 #endif

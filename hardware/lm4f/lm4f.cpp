@@ -66,9 +66,9 @@ void setup()
 
 
 typedef struct {
-  unsigned readyn: 1;
-  unsigned state: 3;
-  unsigned fifo: 4;
+  uint8_t readyn: 1;
+  uint8_t state: 3;
+  uint8_t fifo: 4;
 } cb_t  ; //__attribute__ ((__packed__));
 
 char* cc1101_cb_str(uint8_t cb){
@@ -251,44 +251,47 @@ void regdump(void){
   
 }
 
+#pragma pack(1)
 typedef union {
    struct {
-     uint8_t regs[48];
+     uint8_t regsrw[48];
      uint8_t regsro[14];
      uint8_t patable[8];
      uint8_t rxfifo[64];
      uint8_t txfifo[64];
    } mem;
    
-   __packed struct {
-     
+    struct {
+
+      struct {
+      
      //0x00: IOCFG2 – GDO2 Output Pin Configuration 
-     __packed struct {
-       unsigned notused:1; //Not used
-       unsigned gdo2_inv:1; // Invert output, i.e. select active low (1) / high (0)
-       unsigned gdo2_cfg:6; // Default is CHP_RDYn (See Table 41 on page 62).
+      struct {
+       uint8_t notused:1; //Not used
+       uint8_t gdo2_inv:1; // Invert output, i.e. select active low (1) / high (0)
+       uint8_t gdo2_cfg:6; // Default is CHP_RDYn (See Table 41 on page 62).
      } iocfg2;
      
      //0x01: IOCFG1 – GDO1 Output Pin Configuration
-     __packed struct {
-       unsigned gdo_ds:1; // Set high (1) or low (0) output drive strength on the GDO pins
-       unsigned gdo1_inv:1; // Invert output, i.e. select active low (1) / high (0)
-       unsigned gdo1_cfg:6; // Default is 3-state (See Table 41 on page 62).
+      struct {
+       uint8_t gdo_ds:1; // Set high (1) or low (0) output drive strength on the GDO pins
+       uint8_t gdo1_inv:1; // Invert output, i.e. select active low (1) / high (0)
+       uint8_t gdo1_cfg:6; // Default is 3-state (See Table 41 on page 62).
      } iocfg1;
      
      //0x02: IOCFG0 – GDO0 Output Pin Configuration
-     __packed struct {
-       unsigned temp_sensor_enable: 1; // Enable analog temperature sensor. Write 0 in all other register bits when using temperature sensor.
-       unsigned gdo0_inv: 1; // Invert output, i.e. select active low (1) / high (0)
-       unsigned gfo0_cfg: 6; // Default is CLK_XOSC/192 (See Table 41 on page 62).
+      struct {
+       uint8_t temp_sensor_enable: 1; // Enable analog temperature sensor. Write 0 in all other register bits when using temperature sensor.
+       uint8_t gdo0_inv: 1; // Invert output, i.e. select active low (1) / high (0)
+       uint8_t gfo0_cfg: 6; // Default is CLK_XOSC/192 (See Table 41 on page 62).
        //It is recommended to disable the clock output in initialization, in order to optimize RF performance.
      } iocfg0;
      
      
      //0x03: FIFOTHR – RX FIFO and TX FIFO Thresholds
      struct {
-       unsigned notused:1; //Not used
-       unsigned adc_retention:1;
+       uint8_t notused:1; //Not used
+       uint8_t adc_retention:1;
        /*
 0: TEST1 = 0x31 and TEST2= 0x88 when waking up from SLEEP
 1: TEST1 = 0x35 and TEST2 = 0x81 when waking up from SLEEP
@@ -300,7 +303,7 @@ The ADC_RETENTION bit should be set to 1before going into SLEEP
 mode if settings with an RX filter bandwidth below 325 kHz are wanted at
 time of wake-up.   
        */
-       unsigned close_in_rx: 2;
+       uint8_t close_in_rx: 2;
 /*
 For more details, please see DN010 [8]
 Setting RX Attenuation, Typical Values
@@ -309,7 +312,7 @@ Setting RX Attenuation, Typical Values
 2 (10) 12 dB
 3 (11) 18 dB
 */       
-       unsigned fifo_thr : 4;
+       uint8_t fifo_thr : 4;
 /*
 Set the threshold for the TX FIFO and RX FIFO. The threshold is
 exceeded when the number of bytes in the FIFO is equal to or higher than
@@ -350,7 +353,7 @@ This value must be different from 0.
      
      //0x07: PKTCTRL1 – Packet Automation Control
      struct {
-       unsigned pqt: 3;
+       uint8_t pqt: 3;
        /*
        Preamble quality estimator threshold. The preamble quality estimator
 increases an internal counter by one each time a bit is received that is
@@ -359,19 +362,19 @@ bit is received that is the same as the last bit.
 A threshold of 4 PQT for this counter is used to gate sync word detection.
 When PQT=0 a sync word is always accepted.
        */ 
-       unsigned unused: 1;
-       unsigned crc_autoflush: 1; 
+       uint8_t unused: 1;
+       uint8_t crc_autoflush: 1; 
        /*
 Enable automatic flush of RX FIFO when CRC is not OK. 
 This requires that only one packet is in the RXIFIFO and that packet length is limited to the
 RX FIFO size.       
        */
-       unsigned append_status: 1; 
+       uint8_t append_status: 1; 
 /*
 When enabled, two status bytes will be appended to the payload of the
 packet. The status bytes contain RSSI and LQI values, as well as CRC OK.
 */       
-      unsigned adr_chk: 2;
+      uint8_t adr_chk: 2;
 /*
 Controls address check configuration of received packages.
 Setting Address check configuration
@@ -386,16 +389,16 @@ broadcast
      
      //0x08: PKTCTRL0 – Packet Automation Control
      struct {
-       unsigned unused1: 1;
+       uint8_t unused1: 1;
        
-       unsigned white_data: 1;
+       uint8_t white_data: 1;
        /*
      Turn data whitening on / off
 0: Whitening off
 1: Whitening on
      */
      
-       unsigned pkt_format: 2;
+       uint8_t pkt_format: 2;
        /*
 Format of RX and TX data
 Setting Packet format
@@ -405,14 +408,14 @@ Setting Packet format
 3 (11) Asynchronous serial mode, Data in on GDO0 and data out on either of the GDOx pins       
        */
 
-       unsigned unused2: 1;
+       uint8_t unused2: 1;
 
-       unsigned crc_en: 1;
+       uint8_t crc_en: 1;
 /*
 1: CRC calculation in TX and CRC check in RX enabled
 0: CRC disabled for TX and RX
 */       
-       unsigned length_config: 2;
+       uint8_t length_config: 2;
 /*
 Configure the packet length
 Setting Packet length configuration
@@ -433,15 +436,15 @@ Address used for packet filtration. Optional broadcast addresses are 0
      //0x0A: CHANNR – Channel Number 
      uint8_t channr;
      /*
- The 8-bit unsigned channel number, which is multiplied by the channel
+ The 8-bit uint8_t channel number, which is multiplied by the channel
 spacing setting and added to the base frequency
      */
      
      //0x0B: FSCTRL1 – Frequency Synthesizer Control
      struct {
-       unsigned unused : 2;
-       unsigned reserved : 1;
-       unsigned freq_if: 5;
+       uint8_t unused : 2;
+       uint8_t reserved : 1;
+       uint8_t freq_if: 5;
        /*
 The desired IF frequency to employ in RX. Subtracted from FS base frequency
 in RX and controls the digital complex mixer in the demodulator.
@@ -477,21 +480,21 @@ dependent of XTAL frequency.
           
      //0x10: MDMCFG4 – Modem Configuration
      struct {
-       unsigned chanbw_e: 2;
-       unsigned chanbw_m: 2;
+       uint8_t chanbw_e: 2;
+       uint8_t chanbw_m: 2;
        /*
        Sets the decimation ratio for the delta-sigma ADC input stream and thus the channel bandwidth.
        BW_channel = fosc / ( 8*(4+chanbw_m)*pow(2,chanbw_e);
        The default values give 203 kHz channel filter bandwidth, assuming a 26.0 MHz crystal.
        */
        
-       unsigned drate_e: 4; //The exponent of the user specified symbol rate
+       uint8_t drate_e: 4; //The exponent of the user specified symbol rate
        
      } mdmcfg4;
      
      //0x11: MDMCFG3 – Modem Configuration
      struct {
-       unsigned drate_m: 8;
+       uint8_t drate_m: 8;
        /*
 The mantissa of the user specified symbol rate. 
 The symbol rate is configured using an unsigned, 
@@ -592,7 +595,11 @@ The default values give a data rate of 115.051 kBaud
      
      //0x2F
      uint8_t pad;
-     
+    
+     } regsrw; 
+
+     struct {
+       
      //0x30 (0xF0): PARTNUM – Chip ID 
      uint8_t partmun;
      
@@ -635,6 +642,8 @@ The default values give a data rate of 115.051 kBaud
      //0x3D (0xFD): RCCTRL0_STATUS – Last RC Oscillator Calibration Result
      uint8_t rcctrl0_status;
      
+     } regsro;
+     
      //0x3E (PATABLE)
      uint8_t patable[8];
      
@@ -643,8 +652,10 @@ The default values give a data rate of 115.051 kBaud
      
      //0x3F FIFO
      uint8_t txfifo[64];
-   } regs;
+   } view;
+
 } radiomem_t ;
+#pragma pack()
 
 
 
@@ -681,7 +692,7 @@ void loop()
     digitalWrite(CSPIN, HIGH);
     SPI.end();
     
-    radio.mem.regs[reg]=val;
+    radio.mem.regsrw[reg]=val;
     
     p("%02x",val);
     ooo++;
